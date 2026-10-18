@@ -1,0 +1,63 @@
+name: Web CJK fonts build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/vectorcraft-web/**
+      - crates/text/web-fonts.txt
+      - packaging/web/**
+      - .github/workflows/web-fonts.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-fonts-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+  CARGO_BUILD_JOBS: "2"
+
+jobs:
+  web:
+    name: Build Web with CJK fonts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.95.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: upstream-web-013
+          cache-on-failure: true
+      - uses: storytold/craft-common-actions/actions/install-trunk@main
+        with:
+          trunk-version: 0.21.14
+      - name: Prepare pinned verified CJK fonts
+        run: |
+          python3 packaging/web/prepare-fonts.py "$RUNNER_TEMP/vectorcraft-fonts"
+          echo "CRAFT_FONTS_DIR=$RUNNER_TEMP/vectorcraft-fonts" >> "$GITHUB_ENV"
+          echo "CRAFT_FONTS_REQUIRED=1" >> "$GITHUB_ENV"
+      - name: Build Web package
+        run: packaging/web/package.sh
+      - name: Record source and checksums
+        run: |
+          cd dist/release
+          sha256sum vectorcraft-web-*.zip > SHA256SUMS.txt
+          printf '%s\n' "$GITHUB_SHA" 'VectorCraft 0.13.0 + Web CJK font repair; upstream touch and icons unchanged.' > SOURCE.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vectorcraft-web-cjk-${{ github.sha }}
+          path: |
+            dist/release/vectorcraft-web-*.zip
+            dist/release/SHA256SUMS.txt
+            dist/release/SOURCE.txt
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0

@@ -4,7 +4,11 @@
 //! each file against its SHA-256 (Subresource Integrity). A face that fails is logged and skipped:
 //! the app runs without it. With `WEB_FONTS` empty (built without craft-fonts) both do nothing.
 
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeMap;
+use std::sync::Arc;
+
+use egui::epaint::text::{FontInsert, FontPriority, InsertFontFamily};
 use std::rc::Rc;
 
 use vectorcraft_text::{FontDb, WEB_FONTS, WebFont};
@@ -22,6 +26,8 @@ const BACKGROUND_PARALLEL: usize = 4;
 thread_local! {
     /// The background fetch runs once per page, though a graphics restart creates the app again.
     static BACKGROUND_STARTED: Cell<bool> = const { Cell::new(false) };
+    // Document and UI fonts use separate databases. Keep UI data across font/context resets.
+    static UI_FONTS: RefCell<BTreeMap<String, Arc<egui::FontData>>> = const { RefCell::new(BTreeMap::new()) };
 }
 
 /// Fetch and register the `startup` faces (one after the other). Returns how many loaded.
@@ -68,6 +74,12 @@ async fn load(f: &WebFont, timeout_ms: i32) -> bool {
             return false;
         }
     };
+    if f.family.starts_with("Noto Sans CJK ") {
+        let name = format!("served-ui {} {}", f.family, f.style);
+        UI_FONTS.with(|fonts| {
+            fonts.borrow_mut().entry(name).or_insert_with(|| Arc::new(egui::FontData::from_owned(bytes.clone())));
+        });
+    }
     if FontDb::global().add_font(bytes) == 0 {
         log::warn!("web font {} {}: not a font, or already loaded", f.family, f.style);
         return false;
@@ -106,4 +118,22 @@ async fn fetch(url: &str, integrity: &str, timeout_ms: i32) -> Result<Vec<u8>, S
 
 fn js(e: wasm_bindgen::JsValue) -> String {
     format!("{e:?}")
+}
+
+/// Install downloaded CJK faces in all UI families; repeat after a theme/font or graphics reset.
+pub fn install_ui_fonts(ctx: &egui::Context) {
+    UI_FONTS.with(|fonts| {
+        for (name, data) in fonts.borrow().iter() {
+            if ctx.fonts(|f| f.definitions().font_data.contains_key(name)) {
+                continue;
+            }
+            let families = ctx.fonts(|f| {
+                f.definitions().families.keys().cloned()
+                    .map(|family| InsertFontFamily { family, priority: FontPriority::Lowest }).collect()
+            });
+            ctx.add_font(FontInsert { name: name.clone(), data: data.as_ref().clone(), families });
+            log::info!("vectorcraft-web: UI fallback registered {name}");
+            ctx.request_repaint();
+        }
+    });
 }

@@ -386,6 +386,7 @@ impl eframe::App for WebShell {
             }
         }
         app.logic(ctx);
+        crate::fonts::install_ui_fonts(ctx);
     }
 
     fn raw_input_hook(&mut self, _ctx: &egui::Context, raw: &mut egui::RawInput) {

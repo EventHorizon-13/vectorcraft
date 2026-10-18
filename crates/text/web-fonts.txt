@@ -35,3 +35,9 @@ background | Reem Kufi | Regular
 background | Aref Ruqaa | Regular
 background | Aref Ruqaa | Bold
 background | Gulzar | Regular
+
+# Pinned external Web UI fonts; font files are not committed to this repository.
+startup | Noto Sans CJK SC | Regular
+background | Noto Sans CJK TC | Regular
+background | Noto Sans CJK JP | Regular
+background | Noto Sans CJK KR | Regular
