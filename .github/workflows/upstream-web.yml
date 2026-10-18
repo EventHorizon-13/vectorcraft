@@ -1,0 +1,63 @@
+name: Build upstream VectorCraft Web
+
+on:
+  push:
+    branches: [build/upstream-web-0.13.0]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upstream-web-0.13.0
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+  CARGO_BUILD_JOBS: "2"
+  RUST_BACKTRACE: "1"
+
+jobs:
+  web:
+    name: Upstream 0.13.0 Web
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out exact unmodified upstream source
+        uses: actions/checkout@v4
+        with:
+          ref: 5e6810655ff646b668a5607996e3b3d9e9bdfe88
+      - name: Verify source
+        run: |
+          test "$(git rev-parse HEAD)" = "5e6810655ff646b668a5607996e3b3d9e9bdfe88"
+          test -z "$(git status --porcelain)"
+      - uses: dtolnay/rust-toolchain@1.95.0
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: upstream-web-013
+          cache-on-failure: true
+      - name: Install upstream Trunk version
+        uses: storytold/craft-common-actions/actions/install-trunk@main
+        with:
+          trunk-version: 0.21.14
+      - name: Build using unmodified upstream packaging
+        run: packaging/web/package.sh
+      - name: Record checksums and source
+        run: |
+          cd dist/release
+          sha256sum vectorcraft-web-*.zip > SHA256SUMS.txt
+          printf '%s\n' 'storytold/vectorcraft' '5e6810655ff646b668a5607996e3b3d9e9bdfe88' 'Unmodified upstream 0.13.0; upstream Web packaging defaults; no fork patches or custom icons.' > SOURCE.txt
+      - name: Upload Web package
+        uses: actions/upload-artifact@v4
+        with:
+          name: vectorcraft-upstream-web-0.13.0
+          path: |
+            dist/release/vectorcraft-web-*.zip
+            dist/release/SHA256SUMS.txt
+            dist/release/SOURCE.txt
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
