@@ -1,3 +1,5 @@
+> Fork Web build: the app bar, About mark and Web icons use the approved [VC glass assets](vc-glass/README.md). The original upstream artwork below is preserved with its provenance.
+
 # VectorCraft app icon
 
 **Creature:** a regal engraved dragon, VectorCraft's mascot.

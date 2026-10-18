@@ -1,0 +1,1 @@
+Original VC glass artwork commissioned for this fork by EventHorizon-13, with Codex assistance, 2026. Licensed under MIT OR Apache-2.0, matching the repository's LICENSE-MIT and LICENSE-APACHE. No third-party logo artwork is included.

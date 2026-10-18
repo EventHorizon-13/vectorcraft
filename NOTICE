@@ -92,3 +92,9 @@ Assets already bundled through Hayro's default features retain their licences:
   non-visual character-mapping data; see licenses/pdf-backend/hayro-cmap/LICENSE.txt.
   Adobe and contributor names do not endorse or promote this product.
 Per-file hashes and sources are recorded in ASSETS.md.
+
+Fork VC glass icon
+
+Original VC artwork commissioned by EventHorizon-13 with Codex assistance, 2026.
+The SVG sources and PNG exports in assets/app-icon/vc-glass/ are MIT OR Apache-2.0.
+No Adobe, Apple or other third-party icon artwork is included.

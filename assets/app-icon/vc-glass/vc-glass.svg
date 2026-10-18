@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1024" height="1024" viewBox="0 0 1024 1024">
+<title>VectorCraft VC — restrained amber glass</title>
+<desc>Original VC letterforms in tinted amber glass, fine directional rim lighting, a shallow refractive edge and a soft contact shadow over deep warm brown. Static SVG rendition for a Web App icon.</desc>
+<defs>
+ <linearGradient id="navy" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#44270e"/><stop offset=".52" stop-color="#281605"/><stop offset="1" stop-color="#1a0d03"/></linearGradient>
+ <radialGradient id="ambient" cx=".24" cy=".16" r=".88"><stop stop-color="#8c5429" stop-opacity=".2"/><stop offset="1" stop-color="#201003" stop-opacity="0"/></radialGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2=".58" y2="1"><stop stop-color="#ffda9b" stop-opacity=".94"/><stop offset=".32" stop-color="#ffb54f" stop-opacity=".91"/><stop offset=".58" stop-color="#ed992f" stop-opacity=".86"/><stop offset=".82" stop-color="#e79532" stop-opacity=".94"/><stop offset="1" stop-color="#ffc470" stop-opacity=".96"/></linearGradient>
+ <linearGradient id="edge" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#fff1d5" stop-opacity=".66"/><stop offset=".28" stop-color="#ffe1a3" stop-opacity=".32"/><stop offset=".52" stop-color="#dca354" stop-opacity=".08"/><stop offset=".78" stop-color="#9c632d" stop-opacity=".24"/><stop offset="1" stop-color="#ffe1a3" stop-opacity=".54"/></linearGradient>
+ <linearGradient id="refract" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#fff0ce" stop-opacity=".58"/><stop offset=".4" stop-color="#ffdc99" stop-opacity=".14"/><stop offset=".7" stop-color="#9f570e" stop-opacity=".34"/><stop offset="1" stop-color="#ffd18a" stop-opacity=".37"/></linearGradient>
+ <radialGradient id="softGloss" cx=".22" cy=".13" r=".82"><stop stop-color="#fff4e3" stop-opacity=".2"/><stop offset=".33" stop-color="#ffe6b8" stop-opacity=".08"/><stop offset=".68" stop-color="#ffd18a" stop-opacity="0"/><stop offset="1" stop-color="#ffd18a" stop-opacity="0"/></radialGradient>
+ <linearGradient id="reflection" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff0d6" stop-opacity=".19"/><stop offset="1" stop-color="#ffe1ac" stop-opacity=".02"/></linearGradient>
+ <path transform="translate(-48 0)" id="v" d="M176 280H277L381 617L485 280H586L431 744H331Z"/>
+ <path transform="translate(48 0)" id="c" d="M872 328L814 404C790 381 762 369 731 369C659 369 620 422 620 512C620 602 659 655 731 655C765 655 793 641 816 617L874 687C838 731 788 752 727 752C596 752 520 660 520 512C520 364 596 272 727 272C786 272 835 292 872 328Z"/>
+ <clipPath id="letters"><use xlink:href="#v"/><use xlink:href="#c"/></clipPath>
+</defs>
+<rect width="1024" height="1024" fill="url(#navy)"/>
+<rect width="1024" height="1024" fill="url(#ambient)"/>
+<g transform="translate(102.5 25.6) scale(.78 .95)" stroke-linejoin="round">
+ <g transform="translate(0 10)" fill="#130800" stroke="#130800" stroke-width="11" opacity=".09"><use xlink:href="#v"/><use xlink:href="#c"/></g>
+ <g transform="translate(0 6)" fill="#754314" stroke="#754314" stroke-width="2"><use xlink:href="#v"/><use xlink:href="#c"/></g>
+ <g fill="url(#glass)"><use xlink:href="#v"/><use xlink:href="#c"/></g>
+ <g clip-path="url(#letters)">
+  <g transform="translate(1.6 2.5)" fill="none" stroke="url(#refract)" stroke-width="5"><use xlink:href="#v"/><use xlink:href="#c"/></g>
+  <rect x="190" y="250" width="720" height="530" fill="url(#softGloss)"/>
+  <g transform="translate(-1 -1.5)" fill="none" stroke="#804406" stroke-opacity=".11" stroke-width="3"><use xlink:href="#v"/><use xlink:href="#c"/></g>
+ </g>
+ <g fill="none" stroke="url(#edge)" stroke-width="1.7"><use xlink:href="#v"/><use xlink:href="#c"/></g>
+</g>
+</svg>
