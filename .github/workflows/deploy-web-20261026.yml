@@ -1,0 +1,74 @@
+name: Deployment Web upgrade 20261026
+on:
+  push:
+    branches: [deploy/web-upgrade-20261026]
+    paths: [deployment/**, .github/workflows/deploy-web-20261026.yml]
+permissions:
+  contents: read
+concurrency:
+  group: deployment-web-20261026
+  cancel-in-progress: true
+jobs:
+  web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      CARGO_BUILD_JOBS: '4'
+      CARGO_INCREMENTAL: '0'
+      CARGO_TERM_COLOR: always
+      CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: local
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: storytold/vectorcraft
+          ref: v0.17.0
+          path: upstream
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: storytold/craft-fonts
+          ref: a71c20e30af613287c504f7e685ca8fad77752bc
+          path: craft-fonts
+          persist-credentials: false
+      - name: Build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends pkg-config libxkbcommon-dev libwayland-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgtk-3-dev libfontconfig1-dev libfreetype-dev clang cmake
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
+          rustup default stable
+          curl --fail --location --retry 3 https://github.com/trunk-rs/trunk/releases/download/v0.22.0/trunk-x86_64-unknown-linux-gnu.tar.gz -o /tmp/trunk.tar.gz
+          echo 'f78c1989240c56592d8cfc4df5cc27399a3ff66a3f9cc819e16f1e3d809ce7c2  /tmp/trunk.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/trunk.tar.gz -C "$HOME/.cargo/bin" trunk
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+        with:
+          workspaces: upstream
+          key: deployment-web-20261026
+      - name: Reapply deployment fixes
+        run: |
+          python3 local/deployment/upgrade-web-20261026.py vectorcraft upstream local
+          mkdir -p artifacts
+          cd upstream
+          git add -N .
+          git diff --binary > ../artifacts/source.patch
+          printf 'Upstream: storytold/vectorcraft\nTag: v0.17.0\nUpstream commit: %s\nBuild commit: %s\n' "$(git rev-parse HEAD)" "$GITHUB_SHA" > ../artifacts/SOURCE.txt
+      - name: Compile Web
+        working-directory: upstream/apps/vectorcraft-web
+        run: trunk build --release --locked
+      - name: Package verified site
+        run: |
+          cp local-font-input/NOTICE upstream/dist/web/NOTICE-DroidSansFallback.txt
+          cp upstream/deployment-font-source.json upstream/dist/web/font-source.json
+          cp upstream/LICENSE* upstream/dist/web/ 2>/dev/null || true
+          cd upstream/dist/web
+          zip -qr9 ../../../artifacts/vectorcraft-web-0.17.0-zh.zip .
+          cd ../../../artifacts
+          sha256sum *.zip > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vectorcraft-web-upgrade-20261026
+          path: artifacts/
+          retention-days: 30
